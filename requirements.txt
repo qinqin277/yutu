@@ -1,0 +1,8 @@
+streamlit
+langchain
+langchain-core
+httpx
+plotly
+python-dotenv
+openai
+requests
