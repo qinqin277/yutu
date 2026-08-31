@@ -1,10 +1,12 @@
 
-streamlit
-langchain
-langchain-core
-httpx
-plotly
-python-dotenv
-openai
-requests
+streamlit>=1.28.0
+plotly>=5.17.0
+requests>=2.31.0
+httpx>=0.25.0
+python-dotenv>=1.0.0
+langchain>=0.1.0
+langchain-core>=0.1.0
 langchain-openai
+openai>=1.12.0
+Pillow>=10.0.0
+networkx>=3.0
