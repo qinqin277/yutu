@@ -4801,3 +4801,112 @@ st.caption(
     "阅途 · Personal Reading Growth Agent "
     "· LangChain + DeepSeek + 微信读书 + TMDB"
 )
+
+import streamlit as st
+
+# 设置页面标题
+st.set_page_config(page_title="阅读提醒测试", page_icon="📚")
+
+st.title("📖 三种弹窗方案演示")
+st.write("点击下方按钮，分别体验三种不同的提醒方式。")
+
+# =============================================
+# 方案一：官方 st.dialog（推荐）
+# =============================================
+# 注意：需要 Streamlit >= 1.35
+@st.dialog("📖 阅读提醒 (Dialog)")
+def dialog_reminder():
+    st.write("您已经连续阅读超过 2 小时，起来喝口水，看看窗外吧！")
+    if st.button("我知道了 (关闭)"):
+        st.rerun()  # 关闭弹窗
+
+if st.button("🔔 显示 Dialog 弹窗"):
+    dialog_reminder()
+
+
+# =============================================
+# 方案二：轻提醒 st.toast
+# =============================================
+if st.button("🔔 显示 Toast 提醒"):
+    st.toast("📚 您已阅读 2 小时，休息一下吧！", icon="⏰")
+    st.success("Toast 已显示，它会在几秒后自动消失。", icon="✅")
+
+
+# =============================================
+# 方案三：自定义 HTML 组件（使用 st.components.v1.html）
+# =============================================
+# 用 session_state 控制弹窗的显示/隐藏
+if "show_modal" not in st.session_state:
+    st.session_state.show_modal = False
+
+# 点击按钮时显示弹窗
+if st.button("🔔 显示自定义 HTML 弹窗"):
+    st.session_state.show_modal = True
+
+# 如果状态为 True，则渲染自定义弹窗
+if st.session_state.show_modal:
+    # 使用 components.html 在 iframe 中渲染，不受主页面刷新影响
+    import streamlit.components.v1 as components
+    
+    # 定义弹窗的 HTML / CSS / JS
+    modal_html = """
+    <div id="myModal" style="
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        background: rgba(0, 0, 0, 0.5); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        z-index: 9999;
+    ">
+        <div style="
+            background: white; 
+            padding: 30px 20px; 
+            border-radius: 16px; 
+            max-width: 400px; 
+            width: 85%; 
+            text-align: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        ">
+            <h2 style="margin-top: 0;">📖 眼睛需要休息啦</h2>
+            <p style="color: #555; line-height: 1.6;">
+                您已经连续阅读超过 2 小时，<br>起来喝口水，看看窗外吧！
+            </p>
+            <button onclick="closeModal()" style="
+                background: #07c160; 
+                color: white; 
+                border: none; 
+                padding: 12px 40px; 
+                border-radius: 24px; 
+                font-size: 16px; 
+                font-weight: bold; 
+                cursor: pointer;
+            ">
+                我知道了
+            </button>
+        </div>
+    </div>
+    <script>
+        function closeModal() {
+            // 通过刷新父页面来关闭弹窗（同时重置 session_state）
+            window.parent.location.reload();
+        }
+    </script>
+    """
+    
+    # 渲染组件（高度设为 0 以不占用额外空间）
+    components.html(modal_html, height=0)
+    
+    # 重要：一旦弹窗显示，立即重置状态，避免刷新后再次弹出
+    # 但由于我们使用 reload 关闭，reload 后 session_state 会被重置为初始 False（因为按钮没被点击）
+    # 但为了保险，我们在这里手动重置，这样如果用户通过其他方式关闭，状态也会重置
+    st.session_state.show_modal = False
+
+# =============================================
+# 页面底部的提示
+# =============================================
+st.divider()
+st.caption("💡 提示：方案一需要 Streamlit >= 1.35，方案二所有版本都支持，方案三使用 components.html 基本兼容所有版本。")
